@@ -23,7 +23,7 @@ entry_points: Dict[str, Any] = {
 python_requires = ">=3.6"
 install_requires = [
     "sqlalchemy<1.4.0",
-    "sqlalchemy-utils==0.38.2",
+    "sqlalchemy-utils>=0.36.0",
     "bencode.py~=4.0.0",
     "code-wake~=0.2.0",
 ]
