@@ -26,7 +26,7 @@ class Sql13Store:
         __tablename__ = "environments"
 
         id = sa.Column(sa.Integer, primary_key=True)
-        name = sa.Column(sa.String, unique=True, nullable=False)
+        name = sa.Column(sa.String(40), unique=True, nullable=False)
 
         def __repr__(self):
             return f"<Sql13Store.Environment(id='{self.id}')>"
@@ -38,9 +38,9 @@ class Sql13Store:
         run_ts = sa.Column(sa.Float, nullable=False, default=lambda: datetime.now().timestamp())
         environment_id = sa.Column(sa.Integer, sa.ForeignKey("environments.id"), nullable=True)
         pid = sa.Column(sa.Integer)
-        username = sa.Column(sa.String)
-        fqdn = sa.Column(sa.String)
-        exe_path = sa.Column(sa.String)
+        username = sa.Column(sa.String(40))
+        fqdn = sa.Column(sa.String(100))
+        exe_path = sa.Column(sa.String(200))
         app_id = sa.Column(sa.Integer, sa.ForeignKey("apps.id"), nullable=False)
         app_vsn_id = sa.Column(sa.Integer, sa.ForeignKey("app_vsns.id"), nullable=True)
         environment = orm.relationship("Environment", lazy="joined")
@@ -57,7 +57,7 @@ class Sql13Store:
         __tablename__ = "apps"
 
         id = sa.Column(sa.Integer, primary_key=True)
-        name = sa.Column(sa.String, unique=True, nullable=False)
+        name = sa.Column(sa.String(200), unique=True, nullable=False)
         vsns = orm.relationship("AppVsn", lazy="joined", back_populates="app")
 
         def __repr__(self):
@@ -67,7 +67,7 @@ class Sql13Store:
         __tablename__ = "app_vsns"
 
         id = sa.Column(sa.Integer, primary_key=True)
-        vsn = sa.Column(sa.String, nullable=False)
+        vsn = sa.Column(sa.String(40), nullable=False)
         app_id = sa.Column(sa.Integer, sa.ForeignKey("apps.id"), nullable=False)
         app = orm.relationship("App", lazy="joined", back_populates="vsns")
 
@@ -97,8 +97,8 @@ class Sql13Store:
         __tablename__ = "events_data"
 
         id = sa.Column(sa.Integer, primary_key=True)
-        key = sa.Column(sa.String, nullable=False)
-        val = sa.Column(sa.String, nullable=True)
+        key = sa.Column(sa.String(30), nullable=False)
+        val = sa.Column(sa.String(4000), nullable=True)
         event_id = sa.Column(sa.Integer, sa.ForeignKey("events.id"), nullable=False)
         event = orm.relationship("Event", lazy="joined")
 
@@ -127,9 +127,9 @@ class Sql13Store:
 
         id = sa.Column(sa.Integer, primary_key=True)
         stacktrace_id = sa.Column(sa.Integer, sa.ForeignKey("stacktraces.id"), nullable=False)
-        filename = sa.Column(sa.String, unique=False, nullable=False)
+        filename = sa.Column(sa.String(200), unique=False, nullable=False)
         lineno = sa.Column(sa.Integer, unique=False, nullable=False)
-        src = sa.Column(sa.String, unique=False)
+        src = sa.Column(sa.String(400), unique=False)
         stacktrace = orm.relationship("Stacktrace", lazy="joined")
 
         def __repr__(self):
