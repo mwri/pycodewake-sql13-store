@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import binascii
 import uuid
 from contextlib import contextmanager
 from datetime import datetime
@@ -82,7 +83,7 @@ class Sql13Store:
         id = sa.Column(sa.Integer, primary_key=True)
         when_ts = sa.Column(sa.Float, nullable=False, default=lambda: datetime.now().timestamp())
         process_id = sa.Column(sa.Integer, sa.ForeignKey("processes.id"), nullable=False)
-        digest = sa.Column(sa.BINARY, nullable=True)
+        digest = sa.Column(sa.String(64), nullable=True)
         stacktrace_id = sa.Column(sa.Integer, sa.ForeignKey("stacktraces.id"), nullable=True)
         process = orm.relationship("Process", lazy="joined")
         data = orm.relationship("EventData", back_populates="event", lazy="joined")
@@ -111,7 +112,7 @@ class Sql13Store:
         __tablename__ = "stacktraces"
 
         id = sa.Column(sa.Integer, primary_key=True)
-        digest = sa.Column(sa.BINARY, nullable=False, unique=True)
+        digest = sa.Column(sa.String(64), nullable=False, unique=True)
         stackframes = orm.relationship(
             "Stackframe",
             back_populates="stacktrace",
@@ -353,7 +354,7 @@ class Sql13Store:
             stacktrace_id = None
 
             if st is not None:
-                digest = st.digest()
+                digest = binascii.hexlify(st.digest()).decode()
 
                 stacktrace_records = session.query(self.Stacktrace).filter(self.Stacktrace.digest == digest).all()
                 if len(stacktrace_records) == 0:
@@ -377,7 +378,7 @@ class Sql13Store:
 
             event_record = self.Event(
                 process_id=process.id,
-                digest=None if data is None else utils.data_digest(data),
+                digest=None if data is None else binascii.hexlify(utils.data_digest(data)).decode(),
                 stacktrace_id=stacktrace_id,
                 when_ts=when_ts,
             )
